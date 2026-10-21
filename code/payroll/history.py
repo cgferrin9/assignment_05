@@ -57,7 +57,6 @@ def clean_employee_id(ids: pd.Series) -> pd.Series:
     return "E" + digits
 
 
-
 def clean_number(values: pd.Series) -> pd.Series:
     """Read money or hours written as text; return floats. Unreadable -> 0.0.
 
@@ -84,7 +83,11 @@ def clean_number(values: pd.Series) -> pd.Series:
     - This is `clean_currency` from Assignment 04, with no `apply` — the `.str`
       methods do the looping for you.
     """
-    cleaned = values.str.replace("$", "", regex=False).str.replace(",", "", regex=False).str.strip()
+    cleaned = (
+        values.str.replace("$", "", regex=False)
+        .str.replace(",", "", regex=False)
+        .str.strip()
+    )
     numbers = pd.to_numeric(cleaned, errors="coerce")
     return numbers.fillna(0.0)
 
