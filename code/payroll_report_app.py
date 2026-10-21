@@ -44,3 +44,166 @@ Test it: pytest tests/test_pipeline.py -k app
 #
 # What the page does NOT do: cleaning, grouping, pivoting. If you find yourself
 # writing a groupby or a pivot_table here, that logic belongs in the package.
+
+
+
+import streamlit as st
+
+from payroll import (
+    load_employees,
+    load_export,
+    build_history,
+    summarize_employees,
+    hours_grid,
+    missed_weeks,
+    pay_by_month,
+)
+
+st.title("Salt City Coffee — Quarterly Payroll Report")
+
+st.write(
+    "Upload the weekly payroll exports for the period you want to review "
+    "— old spreadsheet weeks and new app weeks can be mixed. "
+    "The roster is loaded automatically."
+)
+
+# Load employee roster
+roster = load_employees()
+
+# Upload weekly payroll exports
+uploads = st.file_uploader(
+    "Upload weekly payroll exports (CSV)",
+    type=["csv"],
+    accept_multiple_files=True,
+    key="exports"
+)
+
+if uploads:
+
+    # Build payroll history
+    history = build_history(
+        [load_export(u) for u in uploads],
+        roster
+    )
+
+    # Warn about employees not found on roster
+    unmatched = history[history["department"].isna()]
+
+    if not unmatched.empty:
+        missing_ids = unmatched["employeeid"].unique()
+        st.warning(
+            f"Employees not found on roster: {', '.join(missing_ids)}"
+        )
+
+    # Keep only matched employees
+    history = history[history["department"].notna()].copy()
+    history = history.dropna(subset=["pay_date"])
+
+    if not history.empty:
+
+        # Department filter
+        departments = ["All"] + sorted(history["department"].unique())
+
+        department = st.selectbox(
+            "Department",
+            departments,
+            key="department"
+        )
+
+        # Pay date filter
+        start_date = history["pay_date"].min().date()
+        end_date = history["pay_date"].max().date()
+
+        dates = st.date_input(
+            "Pay dates",
+            value=(start_date, end_date),
+            key="dates"
+        )
+
+        # Filter history
+        selected = history.copy()
+
+        if department != "All":
+            selected = selected[
+                selected["department"] == department
+            ]
+
+        if len(dates) == 2:
+            start, end = dates
+
+            selected = selected[
+                (selected["pay_date"].dt.date >= start)
+                & (selected["pay_date"].dt.date <= end)
+            ]
+
+            st.subheader(f"{department} · {start} to {end}")
+
+        # Summary metrics
+        col1, col2, col3, col4 = st.columns(4)
+
+        with col1:
+            st.metric(
+                "Weeks",
+                selected["week_ending"].nunique()
+            )
+
+        with col2:
+            st.metric(
+                "Employees",
+                selected["employee_id"].nunique()
+            )
+
+        with col3:
+            st.metric(
+                "Total hours",
+                f"{selected['hours_worked'].sum():,.2f}"
+            )
+
+        with col4:
+            st.metric(
+                "Total gross pay",
+                f"${selected['gross_pay'].sum():,.2f}"
+            )
+
+        # Gross pay by month
+        st.subheader("Gross pay by month")
+
+        monthly = pay_by_month(selected)
+
+        if not monthly.empty:
+            st.bar_chart(monthly, x="month", stack=True)
+
+        # Employee summary
+        st.subheader("Employees")
+        st.dataframe(
+            summarize_employees(selected),
+            hide_index=True
+        )
+
+        # Hours by week
+        st.subheader("Hours by week")
+        st.caption("0 means the employee was not paid that week.")
+
+        grid = hours_grid(selected)
+
+        st.dataframe(
+            grid,
+            hide_index=True
+        )
+
+        # Missed weeks
+        st.subheader("Missed weeks")
+
+        st.dataframe(
+            missed_weeks(grid),
+            hide_index=True
+        )
+
+        # Download monthly payroll report
+        st.download_button(
+            "Download pay by month for the accountant (CSV)",
+            data=monthly.to_csv(index=False),
+            file_name="pay_by_month.csv",
+            mime="text/csv",
+            key="download"
+        )
