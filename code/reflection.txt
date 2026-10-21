@@ -12,4 +12,9 @@ play as well as learning new concepts as well. For example, I was able to see al
 come in play such as pd.to_datetime format, pivot_table, melt (long vs wide), 
 group by / aggreation, concat and so on. Something that I learned through this assignment
 was coerce, NaT, and more about lineage. Something that I still struggle with that 
-we walked through in this assignment is parsing.
+we walked through in this assignment is parsing. For example I still struggle with 
+splitting strings based on certain characters, such as commas or spaces,
+and then extracting the specific parts I need. In this assignment,
+the format_name function was a good example of this because
+we had to split names at the comma and rearrange them from "Last, First" to
+"First Last."
