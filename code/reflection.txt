@@ -17,4 +17,5 @@ splitting strings based on certain characters, such as commas or spaces,
 and then extracting the specific parts I need. In this assignment,
 the format_name function was a good example of this because
 we had to split names at the comma and rearrange them from "Last, First" to
-"First Last."
+"First Last." In order to improve this and get better at this, I 
+will look at more examples and pay attention to the use cases and syntax
