@@ -5,3 +5,10 @@ terminology from this assignment (grain, long vs. wide, vectorized .str methods,
 coerce, NaT, pd.to_datetime format, .dt, concat, ignore_index, group by, named
 aggregation, reset_index, pivot_table, fill_value, melt, lineage), and make it
 actionable.
+
+This assignment reinforced many of the ideas that were on our past exam. Although it
+was a continuation of assignment 4, it allowed me to further see key concepts in 
+play as well as learning new concepts as well. For example, I was able to see all concepts
+come in play such as pd.to_datetime format, pivot_table, melt (long vs wide), 
+group by / aggreation, concat and so on. Something that I learned through this assignment
+was coerce, NaT, and more about lineage
