@@ -11,4 +11,5 @@ was a continuation of assignment 4, it allowed me to further see key concepts in
 play as well as learning new concepts as well. For example, I was able to see all concepts
 come in play such as pd.to_datetime format, pivot_table, melt (long vs wide), 
 group by / aggreation, concat and so on. Something that I learned through this assignment
-was coerce, NaT, and more about lineage
+was coerce, NaT, and more about lineage. Something that I still struggle with that 
+we walked through in this assignment is parsing.
